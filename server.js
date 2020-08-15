@@ -2,7 +2,8 @@
 const   express = require('express'),
         bodyParser = require('express'),
         mongo = require('mongodb'),
-        expressValidator = require('express-validator');
+        expressValidator = require('express-validator'),
+        ObjectId = require('mongodb').ObjectId;
 
 const app = express();
 
@@ -72,4 +73,19 @@ app.get('/api', function(req, res){
     });
 });
 
+/* GET by ID (read) */
+app.get('/api/:id', function(req, res){
+    db.open(function(err, mongoclient){
+        mongoclient.collection('posts', function(err, collection){
+            collection.find(ObjectId(req.params.id)).toArray(function(err, results){
+                if(err){
+                    res.json(err);
+                }else{
+                    res.json(results);
+                }
+                mongoclient.close();
+            });
+        });
+    });
+});
 
