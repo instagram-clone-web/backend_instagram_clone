@@ -37,17 +37,18 @@ app.post('/api', function(req, res){
 
     let errors = req.validationErrors();
     if(errors){
-        res.json(errors);
+        res.status(400).json({status: 2});
         return;
     }
+
 
     db.open(function(err, mongoclient){
         mongoclient.collection('posts', function(err, collection){
             collection.insert(data, function(err, records){
                 if(err){
-                    res.json(err);
+                    res.status(500).json({status: 4});
                 }else{
-                    res.json(records);
+                    res.status(200).json({status: 1});
                 }
                 mongoclient.close();
             });
@@ -63,9 +64,11 @@ app.get('/api', function(req, res){
         mongoclient.collection('posts', function(err, collection){
             collection.find().toArray(function(err, results){
                 if(err){
-                    res.json(err);
+                    res.status(500).json({status: 3});
+                }if(JSON.stringify(results) === '[]'){
+                    res.status(404).json({status: 2});
                 }else{
-                    res.json(results);
+                    res.status(200).json({status: 1});
                 }
                 mongoclient.close();
             });
@@ -79,9 +82,11 @@ app.get('/api/:id', function(req, res){
         mongoclient.collection('posts', function(err, collection){
             collection.find(ObjectId(req.params.id)).toArray(function(err, results){
                 if(err){
-                    res.json(err);
+                    res.status(500).json({status: 3});
+                }if(JSON.stringify(results) === '[]'){
+                    res.status(404).json({status: 2});
                 }else{
-                    res.json(results);
+                    res.status(200).json({status: 1});
                 }
                 mongoclient.close();
             });
@@ -100,9 +105,28 @@ app.put('/api/:id', function(req, res){
                 {},
                 function(err, records){
                     if(err){
-                        res.json(err);
+                        res.status(500).json({status: 4});
                     }else{
-                        res.json(records);
+                        res.status(200).json({status: 1});
+                    }
+                    mongoclient.close();
+                }
+            );
+        });
+    });
+});
+
+/* DELETE by ID (remove) */
+app.delete('/api/:id', function(req, res){
+    db.open(function(err, mongoclient){
+        mongoclient.collection('posts', function(err, collection){
+            collection.remove(
+                {_id: ObjectId(req.params.id)},
+                function(err, records){
+                    if(err){
+                        res.status(500).json({status: 3});
+                    }else{
+                        res.status(200).json({status: 200});
                     }
                     mongoclient.close();
                 }
