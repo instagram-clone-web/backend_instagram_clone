@@ -25,6 +25,8 @@ let db = new mongo.Db(
     {}
 );
 
+/* POST (create) */
+
 app.post('/api', function(req, res){
 
     let data = req.body;
@@ -48,9 +50,26 @@ app.post('/api', function(req, res){
                 }
                 mongoclient.close();
             });
-        })
-    })
+        });
+    });
 
-})
+});
+
+/* GET (read) */
+
+app.get('/api', function(req, res){
+    db.open(function(err, mongoclient){
+        mongoclient.collection('posts', function(err, collection){
+            collection.find().toArray(function(err, results){
+                if(err){
+                    res.json(err);
+                }else{
+                    res.json(results);
+                }
+                mongoclient.close();
+            });
+        });
+    });
+});
 
 
