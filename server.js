@@ -89,3 +89,25 @@ app.get('/api/:id', function(req, res){
     });
 });
 
+/* PUT by ID (update) */
+app.put('/api/:id', function(req, res){
+    db.open(function(err, mongoclient){
+        mongoclient.collection('posts', function(err, collection){
+            collection.update(
+
+                { _id : ObjectId(req.params.id)},
+                { $set: { title: req.body.title}},
+                {},
+                function(err, records){
+                    if(err){
+                        res.json(err);
+                    }else{
+                        res.json(records);
+                    }
+                    mongoclient.close();
+                }
+            );
+        });
+    });
+});
+
